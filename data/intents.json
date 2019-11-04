@@ -1,0 +1,23 @@
+{
+   "intents": [
+      {
+         "tag": "Teste1",
+         "patterns": [
+            "Teste2"
+         ],
+         "responses": [
+            "teste3"
+         ]
+      },
+      {
+         "tag": "nomes",
+         "patterns": [
+            "Qual seu nome?",
+            "João"
+         ],
+         "responses": [
+            "Wesley"
+         ]
+      }
+   ]
+}
