@@ -1,3 +1,0 @@
-tflearn
-nltk
-unidecode
