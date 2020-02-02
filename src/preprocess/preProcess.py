@@ -3,11 +3,9 @@
 """
 import json
 import sys
-sys.path.insert(0, 'bib/adicionarIntents')
+sys.path.insert(0, 'bib/adicionarIntents') #arrumar
 from adicionarIntents import arquivos
-#import tensorflow
 import numpy
-#import tflearn
 import nltk
 from nltk.stem.lancaster import LancasterStemmer
 stemmer = LancasterStemmer()
@@ -112,5 +110,6 @@ class bagOfWords():
                     bag[i] = 1
         
         return numpy.array(bag)
+
 
 bagOfWords.run()

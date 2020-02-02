@@ -1,0 +1,41 @@
+"""
+Cria e abre o bash da imagem
+"""
+
+docker run --interactive --tty ubuntu bash
+
+
+"""
+Build o arquivo Dockerfile na imagem
+"""
+
+docker build . -t ubuntu
+docker image build -t ubuntu .
+
+
+"""
+Executa a Imagem
+
+"""
+
+docker run ubuntu
+docker container run ubuntu
+
+"""
+    rodadas dinamicas
+"""
+
+docker build -t my-docker . 
+docker run --rm my-docker
+
+"""
+    Delete unuseds containers 
+"""
+
+docker system prune
+
+"""	
+	Return files
+"""
+
+docker cp CONTAINER:"ORIGIN" "DEST"

@@ -1,4 +1,1 @@
-tensorflow-gpu
-nltk
-tflearn
-numpy
+docker==4.1.0
