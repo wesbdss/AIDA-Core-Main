@@ -1,0 +1,49 @@
+***
+Programa em si
+***
+
+chatbot/
+    database/
+        inputs/
+            input1/
+                *Intent.json *
+        models/
+            model1/
+                *Model.bin*
+        outputs/
+            output1/
+                *aplicacao/*
+    src/
+        1-preprocess/
+            method1/
+                preprocess.py
+                Dockerfile
+                requeriments.txt
+                utils/
+                database/
+        2-process-intents/
+            method1/
+        3-process-entities/
+            method1/
+        4-userCode/
+            method1/
+        orquestrador.py
+        requeriments.txt
+    utils/
+        conexao.py
+        findImports.py
+        r_w_intents.py
+
+
+***
+Estrutura dentro do docker (Preprocessamento)
+***
+
+docker/
+    main.py
+    requeriments.txt
+    /model
+        /method1
+            preprocess.py
+    /utils
+        * Arquivos Auxiliares*

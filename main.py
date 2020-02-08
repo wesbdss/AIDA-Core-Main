@@ -28,3 +28,22 @@
  -> Aqui deve ser gerado todo os códigos utilizado pelo usuário
 """
 
+from src import orquestrador
+from utils import findImports
+
+
+class Main:
+    def __init__(self):
+        pass
+    
+    def main(self):
+        orq = orquestrador.Orquestrador()
+        orq.preprocessamento()
+        # a = findImports.FindImports()
+        # print(a.findDiretory(arq=['process.py','intents.json','preprocess.py'], local='database'))
+
+
+
+if __name__ == "__main__":
+    m = Main()
+    m.main()
