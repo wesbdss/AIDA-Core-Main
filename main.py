@@ -39,9 +39,8 @@ class Main:
     def main(self):
         orq = orquestrador.Orquestrador()
         orq.preprocessamento()
-        # a = findImports.FindImports()
-        # print(a.findDiretory(arq=['process.py','intents.json','preprocess.py'], local='database'))
-
+        orq.processamento()
+        print("sucesso")
 
 
 if __name__ == "__main__":

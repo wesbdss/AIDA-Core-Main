@@ -6,7 +6,7 @@ import json
 import os
 
 
-class arquivos():
+class R_w_intents():
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     

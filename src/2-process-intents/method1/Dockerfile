@@ -1,12 +1,25 @@
-FROM tensorflow/tensorflow:1.15.0rc1-py3
+FROM tensorflow/tensorflow:1.14.0-gpu-py3
 
+#
+# Criando Diretório Principal
+#
 RUN mkdir src
-
 WORKDIR /src
 
+#
+# Adicionar os arquivos necessários
+#
 ADD data.pickle .
-
 ADD process.py .
+ADD requeriments.txt . 
 
+#
+# Instalar os requeriments
+#
+RUN pip3 install --upgrade pip
+RUN pip3 install -r requeriments.txt
 
-CMD [ "python3","./main.py" ]
+#
+# Rodar o arquivo
+#
+CMD [ "python3","process.py" ]

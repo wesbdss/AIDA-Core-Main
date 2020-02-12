@@ -24,7 +24,6 @@ from utils.findImports import FindImports
 import tarfile
 
 ver = 'v1'
-name = 'preprocess'
 
 
 class Orquestrador:
@@ -37,9 +36,12 @@ class Orquestrador:
         
     
     def preprocessamento(self,method='method1',dataFile=[]):
+        name = 'preprocess'
+
         #
         #   Caminho dos dados a serem utilizados
         #
+
         if dataFile == []:
             dataFile = ['intents.json']
 
@@ -60,6 +62,7 @@ class Orquestrador:
         #
         # Adicionando a base de dados
         #
+
         try:
             local = self.imp.findDiretory(arq=dataFile,local='database')
         except Exception:
@@ -74,14 +77,14 @@ class Orquestrador:
         for x in datab:
             shutil.copy('{}'.format(x),'src/1-preprocess/{}/database/'.format(method))
 
-        print(self.__class__," Movendo Arquivos necessários")
+        print(self.__class__,"Movendo Arquivos necessários")
 
         #
         # rodar o docker
         #
 
         dk = docker.from_env()
-        imagem = dk.images.build(path ='src/1-preprocess/{}/'.format(method),tag="{}:{}".format(name,ver))
+        dk.images.build(path ='src/1-preprocess/{}/'.format(method),tag="{}:{}".format(name,ver))
         try:
             container = dk.containers.run('{}:{}'.format(name,ver),name="preprocessRun1",remove=False,detach=True)
         except:
@@ -89,6 +92,10 @@ class Orquestrador:
             container.remove(force=True)
             container = dk.containers.run('{}:{}'.format(name,ver),name="preprocessRun1",remove=False,detach=True)
             
+        #
+        # Extrair dado do Container
+        #
+
         w = ''
         print(self.__class__,"Container {} Rodando ...".format(container.id))
         while w != 'exited':
@@ -96,24 +103,30 @@ class Orquestrador:
             w = container.status
         print(self.__class__,"Container {} Terminou".format(container.id))
         a,b = container.get_archive('src/data.pickle')
-        with open('src/2-process-intents/{}/data.tar'.format(method),'wb') as f:
+
+        try:
+            os.mkdir('src/1-preprocess/{}/output/'.format(method))
+        except:
+            pass
+        with open('src/1-preprocess/{}/output/data.tar'.format(method),'wb') as f:
             for c in a:
                 f.write(c)
             f.close()
         #
         # Limpa container desnecessários (CASO DER ERRO, RETIRAR ESSA OPÇâO PARA DEBUG)
-        #
+        #   WARNING: Se houver containers importantes, não esquecer de remover essa opção
 
+        print("Warning: Os containers não utilizados serão apagados!")
         dk.containers.prune()
 
         #
         # Extraindo o .zip
         #
 
-        arquivo = tarfile.open('src/2-process-intents/{}/data.tar'.format(method))
-        arquivo.extractall('src/2-process-intents/{}/'.format(method))
+        arquivo = tarfile.open('src/1-preprocess/{}/output/data.tar'.format(method))
+        arquivo.extractall('src/1-preprocess/{}/output/'.format(method))
         arquivo.close()
-        os.remove('src/2-process-intents/{}/data.tar'.format(method))
+        os.remove('src/1-preprocess/{}/output/data.tar'.format(method))
 
         #
         # Limpar a pasta
@@ -128,5 +141,73 @@ class Orquestrador:
             os.remove('src/1-preprocess/{}/{}/{}'.format(method,'database',x))
         os.rmdir('src/1-preprocess/{}/{}'.format(method,'database'))
 
-    def processamento(self):
-        pass
+        return 0
+
+    def processamento(self,method='method1'):
+        name='process'
+        
+        #
+        # Pegar arquivos do processo anterior
+        #
+
+        try:
+            shutil.copy('src/1-preprocess/{}/output/data.pickle'.format(method),'src/2-process-intents/{}/'.format(method))
+        except:
+            print(self.__class__,"Arquivo de dados pre processados não encontrados")
+            return 1
+        
+        #
+        # Executar docker
+        #
+        
+        dk = docker.from_env()
+        dk.images.build(path ='src/2-process-intents/{}/'.format(method),tag="{}:{}".format(name,ver))
+
+        try:
+            container = dk.containers.run('{}:{}'.format(name,ver),name="processRun1",remove=False,detach=True)
+        except:
+            container = dk.containers.get('processRun1')
+            container.remove(force=True)
+            container = dk.containers.run('{}:{}'.format(name,ver),name="processRun1",remove=False,detach=True)
+        
+        print(self.__class__,"Container {} Rodando ...".format(container.id))
+        w = ''
+        while w != 'exited':
+            container.reload()
+            w = container.status
+        print(self.__class__,"Container {} Terminou".format(container.id))
+        a,b = container.get_archive('src/model/')
+
+        try:
+            os.mkdir('src/2-process-intents/{}/output/'.format(method))
+        except:
+            pass
+        print(a)
+        with open('src/2-process-intents/{}/output/data.tar'.format(method),'wb') as f:
+            for c in a:
+                f.write(c)
+            f.close()
+
+        #
+        # Limpa container desnecessários (CASO DER ERRO, RETIRAR ESSA OPÇâO PARA DEBUG)
+        #   WARNING: Se houver containers importantes, não esquecer de remover essa opção
+
+        print("Warning: Os containers não utilizados serão apagados!")
+        dk.containers.prune()
+
+        #
+        # Extraindo o .zip
+        #
+
+        arquivo = tarfile.open('src/2-process-intents/{}/output/data.tar'.format(method))
+        arquivo.extractall('src/2-process-intents/{}/output/'.format(method))
+        arquivo.close()
+        os.remove('src/2-process-intents/{}/output/data.tar'.format(method))
+
+        #
+        # Limpar pasta
+        #
+
+        os.remove('src/2-process-intents/{}/data.pickle'.format(method))
+
+        return 0

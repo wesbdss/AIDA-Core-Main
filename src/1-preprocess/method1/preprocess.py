@@ -1,3 +1,9 @@
+"""
+
+    Código feito para rodar dentro do Docker
+
+"""
+
 import json
 import os 
 from unidecode import unidecode
