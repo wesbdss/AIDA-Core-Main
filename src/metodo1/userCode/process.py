@@ -14,14 +14,14 @@ class Process:
             with open(dir,'rb') as f:
                 words,labels,training,output = pickle.load(f)
                 f.close()
-            return training,output
+            return words,labels,training,output
         except Exception:
             print(self.__class__,"Arquivo data não encontrado")
             return 1
 
     def modelo(self,epoch=1000,batch=8):
 
-        training,output = self.carregarDado()
+        _,_,training,output = self.carregarDado()
         tensorflow.reset_default_graph()
         net = tflearn.input_data(shape=[None, len(training[0])])
         net = tflearn.fully_connected(net, 8)

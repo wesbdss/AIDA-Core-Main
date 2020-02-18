@@ -16,15 +16,14 @@ Sintaxe dele vai ser
 
 python orquestrador.py PREPROCESSAMENTO PROCESSAMENTO 
 """
+
 import platform
+import json
 import shutil
 import os
 import docker
-from utils.findImports import FindImports
 import tarfile
-
-ver = 'v1'
-
+import datetime
 
 class Orquestrador:
     def __init__(self, *args, **kwargs):
@@ -32,50 +31,54 @@ class Orquestrador:
         print(self.__class__,">> Sistema Utilizado: ", platform.system())
         path = os.getcwd()
         print (self.__class__,"O programa está sendo executado em -->  %s" % path)
-        self.imp = FindImports()
         
     
-    def preprocessamento(self,method='method1',dataFile=[]):
-        name = 'preprocess'
+    def preprocessamento(self,method='metodo1'):
+        name = 'preprocessamento'
+        dirbase = 'src/'
+        if method not in os.listdir(dirbase):
+            print(self.__class__,"ERR: Método inexistente")
+            return 1
+        
+        with open('{}/{}/config.json'.format(dirbase,method),'r') as f:
+            configs = json.load(f)
+            f.close()
+        
 
         #
         #   Caminho dos dados a serem utilizados
         #
 
-        if dataFile == []:
-            dataFile = ['intents.json']
+        dataFile = configs['input']
 
         #
-        # mover arquivos do util para os dockers
+        # mover arquivos do util para pasta com docker
         #
 
         diretory = 'utils'
         ar = os.listdir(path=diretory)
         ar = [w for w in ar if w not in ['__pycache__']]
         try:
-            os.mkdir('src/1-preprocess/{}/{}/'.format(method,diretory))
+            os.mkdir('{}/{}/preprocess/{}/'.format(dirbase,method,diretory))
         except:
             pass
         for x in ar:
-            shutil.copy('{}/{}'.format(diretory,x),'src/1-preprocess/{}/{}/'.format(method,diretory))
+            shutil.copy('{}/{}'.format(diretory,x),'{}/{}/preprocess/{}/'.format(dirbase,method,diretory))
         
         #
         # Adicionando a base de dados
         #
 
+        """
+        UPDATE:
+
+        implementar modo, multi intents
+        """
         try:
-            local = self.imp.findDiretory(arq=dataFile,local='database')
-        except Exception:
-            print(self.__class__,"ERR >> Arquivo não encontrado")
-            return 1
-        diretorybase = local[0]['dir']
-        datab = [x['dir'] for x in local]
-        try:
-            os.mkdir('src/1-preprocess/{}/database/'.format(method))
+            os.mkdir('{}/{}/preprocess/database/'.format(dirbase,method))
         except:
             pass
-        for x in datab:
-            shutil.copy('{}'.format(x),'src/1-preprocess/{}/database/'.format(method))
+        shutil.copy('{}'.format(configs['input']),'{}/{}/preprocess/database/'.format(dirbase,method))
 
         print(self.__class__,"Movendo Arquivos necessários")
 
@@ -84,34 +87,34 @@ class Orquestrador:
         #
 
         dk = docker.from_env()
-        dk.images.build(path ='src/1-preprocess/{}/'.format(method),tag="{}:{}".format(name,ver))
+        dk.images.build(path ='{}/{}/preprocess/'.format(dirbase,method),tag="{}:{}".format(name,configs['version']))
         try:
-            container = dk.containers.run('{}:{}'.format(name,ver),name="preprocessRun1",remove=False,detach=True)
+            container = dk.containers.run("{}:{}".format(name,configs['version']),name=configs['name'],remove=False,detach=True)
         except:
-            container = dk.containers.get('preprocessRun1')
+            container = dk.containers.get(configs['name'])
             container.remove(force=True)
-            container = dk.containers.run('{}:{}'.format(name,ver),name="preprocessRun1",remove=False,detach=True)
+            container = dk.containers.run("{}:{}".format(name,configs['version']),name=configs['name'],remove=False,detach=True)
             
         #
         # Extrair dado do Container
         #
 
-        w = ''
         print(self.__class__,"Container {} Rodando ...".format(container.id))
-        while w != 'exited':
-            container.reload()
-            w = container.status
+        container.wait()
         print(self.__class__,"Container {} Terminou".format(container.id))
-        a,b = container.get_archive('src/data.pickle')
+        a,b = container.get_archive('output/')
 
         try:
-            os.mkdir('src/1-preprocess/{}/output/'.format(method))
-        except:
+            os.mkdir('{}'.format(configs['output preprocess']))
+            os.mkdir('{}/{}'.format(configs['output preprocess'],method))
+        except Exception:
             pass
-        with open('src/1-preprocess/{}/output/data.tar'.format(method),'wb') as f:
+
+        with open('{}/{}/{}.tar'.format(configs['output preprocess'],method,configs['output preprocess name']),'wb') as f:
             for c in a:
                 f.write(c)
             f.close()
+        
         #
         # Limpa container desnecessários (CASO DER ERRO, RETIRAR ESSA OPÇâO PARA DEBUG)
         #   WARNING: Se houver containers importantes, não esquecer de remover essa opção
@@ -123,37 +126,70 @@ class Orquestrador:
         # Extraindo o .zip
         #
 
-        arquivo = tarfile.open('src/1-preprocess/{}/output/data.tar'.format(method))
-        arquivo.extractall('src/1-preprocess/{}/output/'.format(method))
+        arquivo = tarfile.open('{}/{}/{}.tar'.format(configs['output preprocess'],method,configs['output preprocess name']))
+        arquivo.extractall('{}/{}'.format(configs['output preprocess'],method))
         arquivo.close()
-        os.remove('src/1-preprocess/{}/output/data.tar'.format(method))
+        for x in os.listdir('{}/{}/output/'.format(configs['output preprocess'],method)):
+            shutil.copy('{}/{}/output/{}'.format(configs['output preprocess'],method,x),'{}/{}'.format(configs['output preprocess'],method))
+            os.remove('{}/{}/output/{}'.format(configs['output preprocess'],method,x))
+        os.rmdir('{}/{}/output'.format(configs['output preprocess'],method))
+        os.remove('{}/{}/{}.tar'.format(configs['output preprocess'],method,configs['output preprocess name']))
 
         #
         # Limpar a pasta
         #
 
-        temp = os.listdir('src/1-preprocess/{}/{}'.format(method,'utils'))
+        temp = os.listdir('{}/{}/preprocess/{}'.format(dirbase,method,'utils'))
         for x in temp:
-            os.remove('src/1-preprocess/{}/{}/{}'.format(method,'utils',x))
-        os.rmdir('src/1-preprocess/{}/{}'.format(method,'utils'))
-        temp = os.listdir('src/1-preprocess/{}/{}'.format(method,'database'))
+            os.remove('{}/{}/preprocess/{}/{}'.format(dirbase,method,'utils',x))
+        os.rmdir('{}/{}/preprocess/{}'.format(dirbase,method,'utils'))
+        temp = os.listdir('{}/{}/preprocess/{}'.format(dirbase,method,'database'))
         for x in temp:
-            os.remove('src/1-preprocess/{}/{}/{}'.format(method,'database',x))
-        os.rmdir('src/1-preprocess/{}/{}'.format(method,'database'))
+            os.remove('{}/{}/preprocess/{}/{}'.format(dirbase,method,'database',x))
+        os.rmdir('{}/{}/preprocess/{}'.format(dirbase,method,'database'))
 
         return 0
 
-    def processamento(self,method='method1'):
-        name='process'
+    def processamento(self,method='metodo1',preprocess= 'metodo1'):
+        name='processamento'
+        dirbase = 'src'
+
+        #
+        #   Verifica erros
+        #
+
+        if method not in os.listdir(dirbase):
+            print(self.__class__,"ERR: Método inexistente")
+            return 1
+
+        #
+        # Abre as configurações
+        #
+
+        with open('{}/{}/config.json'.format(dirbase,method),'r') as f: #Etapa corrente configs
+            configs = json.load(f)
+            f.close()
+
+        with open('{}/{}/config.json'.format(dirbase,preprocess),'r') as f: #Etapa anterior configs
+            configs1 = json.load(f)
+            f.close()
         
         #
         # Pegar arquivos do processo anterior
         #
 
+        """
+        UPDATE:
+            Arrumar pra pegar arquivos dinâmicos
+        """
         try:
-            shutil.copy('src/1-preprocess/{}/output/data.pickle'.format(method),'src/2-process-intents/{}/'.format(method))
-        except:
-            print(self.__class__,"Arquivo de dados pre processados não encontrados")
+            os.mkdir('{}/{}/process-intents/database'.format(dirbase,method))
+        except Exception as ex:
+            pass
+        try: 
+            shutil.copy('{}/{}/data.pickle'.format(configs1['output preprocess'],preprocess),'{}/{}/process-intents/database/'.format(dirbase,method))
+        except Exception as ex:
+            print(self.__class__,"Arquivo de dados pre processados não encontrados ",ex)
             return 1
         
         #
@@ -161,29 +197,27 @@ class Orquestrador:
         #
         
         dk = docker.from_env()
-        dk.images.build(path ='src/2-process-intents/{}/'.format(method),tag="{}:{}".format(name,ver))
+        dk.images.build(path ='{}/{}/process-intents/'.format(dirbase,method),tag="{}:{}".format(name,configs['version']))
 
         try:
-            container = dk.containers.run('{}:{}'.format(name,ver),name="processRun1",remove=False,detach=True)
+            container = dk.containers.run("{}:{}".format(name,configs['version']),name=configs['name'],remove=False,detach=True)
         except:
-            container = dk.containers.get('processRun1')
+            container = dk.containers.get(configs['name'])
             container.remove(force=True)
-            container = dk.containers.run('{}:{}'.format(name,ver),name="processRun1",remove=False,detach=True)
+            container = dk.containers.run("{}:{}".format(name,configs['version']),name=configs['name'],remove=False,detach=True)
         
         print(self.__class__,"Container {} Rodando ...".format(container.id))
-        w = ''
-        while w != 'exited':
-            container.reload()
-            w = container.status
+        container.wait()
         print(self.__class__,"Container {} Terminou".format(container.id))
-        a,b = container.get_archive('src/model/')
+        a,b = container.get_archive('output/')
 
         try:
-            os.mkdir('src/2-process-intents/{}/output/'.format(method))
+            os.mkdir('{}'.format(configs['output process']))
+            os.mkdir('{}/{}'.format(configs['output process'],method))
         except:
             pass
         print(a)
-        with open('src/2-process-intents/{}/output/data.tar'.format(method),'wb') as f:
+        with open('{}/{}/{}.tar'.format(configs['output process'],method,configs['output process name']),'wb') as f:
             for c in a:
                 f.write(c)
             f.close()
@@ -199,15 +233,41 @@ class Orquestrador:
         # Extraindo o .zip
         #
 
-        arquivo = tarfile.open('src/2-process-intents/{}/output/data.tar'.format(method))
-        arquivo.extractall('src/2-process-intents/{}/output/'.format(method))
+        arquivo = tarfile.open('{}/{}/{}.tar'.format(configs['output process'],method,configs1['output process name']))
+        arquivo.extractall('{}/{}/'.format(configs['output process'],method))
         arquivo.close()
-        os.remove('src/2-process-intents/{}/output/data.tar'.format(method))
+        for x in os.listdir('{}/{}/output/'.format(configs['output process'],method)):
+            shutil.copy('{}/{}/output/{}'.format(configs['output process'],method,x),'{}/{}'.format(configs['output process'],method))
+            os.remove('{}/{}/output/{}'.format(configs['output process'],method,x))
+        
+        os.rmdir('{}/{}/output'.format(configs['output process'],method))
+        os.remove('{}/{}/{}.tar'.format(configs['output process'],method,configs['output process name']))
 
         #
         # Limpar pasta
         #
 
-        os.remove('src/2-process-intents/{}/data.pickle'.format(method))
+        for x in os.listdir('{}/{}/process-intents/{}'.format(dirbase,method,'database')):
+            os.remove('{}/{}/process-intents/{}/{}'.format(dirbase,method,'database',x))
+        os.rmdir('{}/{}/process-intents/{}'.format(dirbase,method,'database'))
 
+        #
+        # Gera um log das tecnicas utilizadas
+        #
+        output = {
+            "preprocessamento":preprocess,
+            "processamento":method,
+            "data": '{}'.format(datetime.datetime.now()),
+            "dado processado": '{}/{}/data.pickle'.format(configs1['output preprocess'],preprocess),
+            "dado input": '{}'.format(configs1['input']),
+            "modelo": '{}/{}'.format(configs['output process'],method),
+            "version":configs['version']
+        }
+        print(self.__class__,"Gerando user.json ")
+        with open('{}/user.json'.format('database/output'),'w') as f:
+            json.dump(output,f)
+            f.close()
         return 0
+
+    def userCode(self, baseUser='user.json'):
+        pass

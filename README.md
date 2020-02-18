@@ -4,4 +4,4 @@ Desenvolvimento de um chatbot.
 
 # Arquitetura
 
-![Arquitetura](estrutura.png)
+![Arquitetura](imgs/estrutura.png)

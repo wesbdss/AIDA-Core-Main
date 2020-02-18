@@ -1,0 +1,8 @@
+{
+    "preprocessamento": "metodo1",
+    "processamento": "metodo1",
+    "data": "2020-02-18 13:50:20.464586",
+    "dado processado": "database/preprocess//metodo1/data.pickle",
+    "dado input": "database/inputs/intents.json",
+    "modelo": "database/process//metodo1"
+}

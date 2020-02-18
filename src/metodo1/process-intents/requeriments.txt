@@ -1,0 +1,2 @@
+tflearn==0.3.2
+tensorflow-gpu==1.14.0

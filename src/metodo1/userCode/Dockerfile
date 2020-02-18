@@ -10,4 +10,4 @@ WORKDIR /src
 #
 # Rodar o arquivo
 #
-CMD [ "python3","process.py" ]
+CMD [ "python3","serve.py" ]

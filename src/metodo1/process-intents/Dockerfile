@@ -9,7 +9,7 @@ WORKDIR /src
 #
 # Adicionar os arquivos necessários
 #
-ADD data.pickle .
+ADD database/data.pickle .
 ADD process.py .
 ADD requeriments.txt . 
 

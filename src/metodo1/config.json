@@ -1,0 +1,30 @@
+{
+    "name": "metodo1",
+    "version": 1,
+    "steps": 3,
+    "requerimentos": {
+        "preprocess": [
+            "Dockerfile",
+            "main.py",
+            "requeriments.txt"
+        ],
+        "process-intents": [
+            "Dockerfile",
+            "main.py",
+            "requeriments.txt"
+        ],
+        "userCode": [
+            "Dockerfile",
+            "main.py",
+            "requeriments.txt"
+        ]
+    },
+    "input": "database/inputs/intents.json",
+    "stopwords": "database/inputs/stopwords.json",
+    "output server": "output/",
+    "output process": "database/process/",
+    "output preprocess": "database/preprocess/",
+    "output preprocess name": "data",
+    "output process name": "model",
+    "descricao": "Bag of Words + tflearn + Tensorflow 1.14"
+}
