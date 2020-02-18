@@ -1,17 +1,16 @@
 import sys
-import flask
-from flask import request, jsonify
-import numpy
 
 """
     Aqui deve conter a parte envolvida com o usuário de python, Provavelmente é bom criar um servidor de distribuição das falas (API)
 
+
+    Flask - API rest
+ou
+    Servidor Websocket -- Vou implementar esse <-
 """
 
-class Server():
+class Server1():
 
-    def bag_of_Words:
-        pass
 
 
     def chat():
@@ -35,17 +34,53 @@ class Server():
             print(random.choice(responses))
             print(results)
 
-app = flask.Flask("Servidor API Bot")
-app.config['DEBUG'] = True
 
-@app.route('/',methods=['GET'])
-def home():
-    return "<h1>Pagina Inicial da Api</h1></br>Esta api tem propósito de hospedar um API de teste"
+"""
+    Funcionamento: 
     
-@app.route('/api/v1/intents/',methods=['GET'])
-def index():
-    parameters = request.args
-    entrada = parameters.get('input')
-    print(entrada)
-    return entrada
-app.run()
+    - O funcionamento vai ser dado de acordo com que os usuários vão se conectando, eles devem ter uma sessão.
+    - Cada sessão nao deve ser influenciada por outra.
+    - Sessões podem ser por conexao (Não guarda dados) ou por ID de conta (Guarda dados)
+
+"""
+
+
+import asyncio
+import websockets
+
+
+"""
+CLIENTE EXEMPLO
+
+import asyncio
+import websockets
+
+async def hello():
+    uri = "ws://localhost:8765"
+    async with websockets.connect(uri) as websocket:
+        name = input("What's your name? ")
+
+        await websocket.send(name)
+        print(f"> {name}")
+
+        greeting = await websocket.recv()
+        print(f"< {greeting}")
+
+asyncio.get_event_loop().run_until_complete(hello())
+"""
+class Server:
+    async def pass1(self,websocket,path):
+        print(path)
+        print(websocket)
+        tes = await websocket.recv()
+        print(tes)
+        await websocket.send('Blz mlk')
+
+    def main(self):
+        start_server = websockets.serve(self.pass1,'localhost',10101)
+        asyncio.get_event_loop().run_until_complete(start_server)
+        asyncio.get_event_loop().run_forever()
+
+    
+a = Server()
+a.main()       
