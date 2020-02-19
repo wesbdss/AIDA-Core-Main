@@ -38,8 +38,9 @@ class Main:
     
     def main(self):
         orq = orquestrador.Orquestrador()
-        orq.preprocessamento()
-        orq.processamento()
+        # orq.preprocessamento()
+        # orq.processamento()
+        orq.userCode()
         print("sucesso")
 
 

@@ -270,4 +270,24 @@ class Orquestrador:
         return 0
 
     def userCode(self, baseUser='user.json'):
-        pass
+        with open('database/output/'+baseUser) as f:
+            configs = json.load(f)
+            f.close()
+
+        
+
+        #
+        # Mesclar os requeriments
+        #
+
+        #
+        # Pegar as bibliotecas de cada método
+        #
+
+        #
+        # Criar a maquina docker pra rodar - salvar a máquina
+        #
+
+        #
+        # Limpar os dados
+        #

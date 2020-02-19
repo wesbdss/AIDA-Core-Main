@@ -42,16 +42,12 @@ asyncio.get_event_loop().run_until_complete(hello())
 import asyncio
 import websockets
 import process
-import nltk
 import json
 import random
 import numpy
-nltk.download('punkt')
-nltk.download('rslp')
-from nltk.stem.lancaster import LancasterStemmer
-stemmer = LancasterStemmer()
+import preprocess
 
-with open("./intents.json") as file:
+with open("./database/intents.json") as file:
     data = json.load(file)
 
 
@@ -65,46 +61,59 @@ class Server:
             await websocket.send('Blz mlk')
     
     async def chat(self,sock,path):
+
+        #
+        # Get dados do usuário
+        #
+
         entrada =  await sock.recv()
         print(sock," > ",entrada)
         if entrada == 'quit': #fecha o servidor
             exit()
+
+        #
+        # Implementar requests Json
+        #
+
+        #
+        # Importar processos
+        #
+        
         pcss = process.Process()
+        ppcss = preprocess.Preprocess()
+
+        #
+        # pegar e carregar modelo pre treinado
+        #
         model = pcss.modelo()
-        words,labels,_,_ = pcss.carregarDado()
         model.load('./model/model.tflearn')
-        results = model.predict([self.bag_of_words(entrada,words)])[0] #words é do treinos
+
+        #
+        # Carregar labels e tabela de palavras
+        #
+        words,labels,_,_ = pcss.carregarDado()
+
+        results = model.predict([ppcss.bag_of_words(entrada,words)])[0] #words é do treinos
         results_index = numpy.argmax(results)
         tag = labels[results_index]
 
-        if results[results_index]> 0.7:
+        if results[results_index]> 0.6:
             for tg in data["intents"]:
                 if tg['tag'] == tag:
                     responses = tg['responses']
             await sock.send(random.choice(responses))
         else: 
             print("Eu não entendi o que vc falou")
-
+            #
+            # Implementar o sistema de reaproveitamento de frases CSV
+            #
         print(random.choice(responses))
         print(results)
-
-    def bag_of_words(self,s, words):
-        bag = [0 for _ in range(len(words))]
-
-        s_words = nltk.word_tokenize(s)
-        s_words = [stemmer.stem(word.lower()) for word in s_words]
-
-        for se in s_words:
-            for i, w in enumerate(words):
-                if w == se:
-                    bag[i] = 1
-        return numpy.array(bag)
 
     def main(self):
         start_server = websockets.serve(self.chat,'localhost',10101)
         asyncio.get_event_loop().run_until_complete(start_server)
         asyncio.get_event_loop().run_forever()
         
-
 a = Server()
 a.main()
