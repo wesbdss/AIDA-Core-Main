@@ -111,8 +111,11 @@ class Server:
         print(results)
 
     def main(self):
-        start_server = websockets.serve(self.chat,'localhost',10101)
+        print("Servidor rodando 0.0.0.0:10101")
+        start_server = websockets.serve(self.chat,'0.0.0.0',10101)
+        # server2 = websockets.serve(self.pass1,'localhost',10102)
         asyncio.get_event_loop().run_until_complete(start_server)
+        # asyncio.get_event_loop().run_until_complete(server2)
         asyncio.get_event_loop().run_forever()
         
 a = Server()

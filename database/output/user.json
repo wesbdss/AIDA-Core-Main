@@ -1,8 +1,16 @@
 {
-    "preprocessamento": "metodo1",
-    "processamento": "metodo1",
-    "data": "2020-02-18 13:50:20.464586",
-    "dado processado": "database/preprocess//metodo1/data.pickle",
-    "dado input": "database/inputs/intents.json",
-    "modelo": "database/process//metodo1"
+    "output": [
+        {
+            "id": 123,
+            "preprocessamento": "metodo1",
+            "processamento": "metodo1",
+            "data": "2020-02-19 23:33:36.865602",
+            "arquivos": [
+                "database/preprocess//metodo1/data.pickle",
+                "database/inputs/intents.json",
+                "database/process//metodo1"
+            ],
+            "version": 1
+        }
+    ]
 }

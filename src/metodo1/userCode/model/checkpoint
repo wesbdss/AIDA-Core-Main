@@ -1,2 +1,0 @@
-model_checkpoint_path: "/src/model/model.tflearn"
-all_model_checkpoint_paths: "/src/model/model.tflearn"

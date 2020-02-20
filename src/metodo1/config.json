@@ -5,17 +5,12 @@
     "requerimentos": {
         "preprocess": [
             "Dockerfile",
-            "main.py",
+            "preprocess.py",
             "requeriments.txt"
         ],
         "process-intents": [
             "Dockerfile",
-            "main.py",
-            "requeriments.txt"
-        ],
-        "userCode": [
-            "Dockerfile",
-            "main.py",
+            "process.py",
             "requeriments.txt"
         ]
     },
