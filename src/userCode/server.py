@@ -41,17 +41,20 @@ asyncio.get_event_loop().run_until_complete(hello())
 
 import asyncio
 import websockets
-import process
+from libs.process import Process
+from libs.preprocess import Preprocess
 import json
 import random
-import numpy
-import preprocess
 
-with open("./database/intents.json") as file:
+with open("arquivos/intents.json") as file:
     data = json.load(file)
 
 
 class Server:
+    def __init__(self):
+        self.pcss = Process()
+        self.ppcss = Preprocess()
+        self.words,self.labels,_,_ = self.pcss.carregarDado(dir='arquivos/data.pickle')
     async def pass1(self,websocket,path):
         print(path)
         print(websocket)
@@ -66,6 +69,10 @@ class Server:
         # Get dados do usuário
         #
 
+        #
+        # Importar processos
+        #
+
         entrada =  await sock.recv()
         print(sock," > ",entrada)
         if entrada == 'quit': #fecha o servidor
@@ -75,27 +82,16 @@ class Server:
         # Implementar requests Json
         #
 
-        #
-        # Importar processos
-        #
-        
-        pcss = process.Process()
-        ppcss = preprocess.Preprocess()
 
-        #
-        # pegar e carregar modelo pre treinado
-        #
-        model = pcss.modelo()
-        model.load('./model/model.tflearn')
+        
+
 
         #
         # Carregar labels e tabela de palavras
         #
-        words,labels,_,_ = pcss.carregarDado()
 
-        results = model.predict([ppcss.bag_of_words(entrada,words)])[0] #words é do treinos
-        results_index = numpy.argmax(results)
-        tag = labels[results_index]
+        results, results_index = self.pcss.predict(self.ppcss.preprocess(entrada,self.words))
+        tag = self.labels[results_index]
 
         if results[results_index]> 0.6:
             for tg in data["intents"]:

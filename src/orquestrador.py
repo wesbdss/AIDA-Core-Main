@@ -20,6 +20,7 @@ python orquestrador.py PREPROCESSAMENTO PROCESSAMENTO
 import platform
 import json
 import shutil
+from utils.manipularArquivos import ManipularArquivos
 import os
 import docker
 import tarfile
@@ -32,6 +33,7 @@ class Orquestrador:
         super().__init__(*args, **kwargs)
         print(self.__class__, ">> Sistema Utilizado: ", platform.system())
         path = os.getcwd()
+        self.__manipula = ManipularArquivos()
         print(self.__class__, "O programa está sendo executado em -->  %s" % path)
 
     def preprocessamento(self, method="metodo1"):
@@ -176,14 +178,8 @@ class Orquestrador:
         # Limpar a pasta
         #
 
-        temp = os.listdir("{}/{}/preprocess/{}".format(dirbase, method, "utils"))
-        for x in temp:
-            os.remove("{}/{}/preprocess/{}/{}".format(dirbase, method, "utils", x))
-        os.rmdir("{}/{}/preprocess/{}".format(dirbase, method, "utils"))
-        temp = os.listdir("{}/{}/preprocess/{}".format(dirbase, method, "database"))
-        for x in temp:
-            os.remove("{}/{}/preprocess/{}/{}".format(dirbase, method, "database", x))
-        os.rmdir("{}/{}/preprocess/{}".format(dirbase, method, "database"))
+        self.__manipula.deletePasta("{}/{}/preprocess/{}".format(dirbase, method, "utils"))
+        self.__manipula.deletePasta("{}/{}/preprocess/{}".format(dirbase, method, "database"))
 
         return 0
 
@@ -303,6 +299,8 @@ class Orquestrador:
         )
         arquivo.extractall("{}/{}/".format(configs["output process"], method))
         arquivo.close()
+
+        
         for x in os.listdir("{}/{}/output/".format(configs["output process"], method)):
             shutil.copy(
                 "{}/{}/output/{}".format(configs["output process"], method, x),
@@ -321,17 +319,12 @@ class Orquestrador:
         # Limpar pasta
         #
 
-        for x in os.listdir(
-            "{}/{}/process-intents/{}".format(dirbase, method, "database")
-        ):
-            os.remove(
-                "{}/{}/process-intents/{}/{}".format(dirbase, method, "database", x)
-            )
-        os.rmdir("{}/{}/process-intents/{}".format(dirbase, method, "database"))
+        self.__manipula.deletePasta( "{}/{}/process-intents/{}".format(dirbase, method, "database"))
 
         #
         # Gera um log das tecnicas utilizadas
         #
+
         output = {
             "output": [
                 {
@@ -367,7 +360,8 @@ class Orquestrador:
                 f.close()
         return 0
 
-    def userCode(self, baseUser="database/output/user.json", id=123, rand=False):
+    def userCode(self, baseUser="database/output/user.json", id=123, rand=False,save=False):
+        
         try:
             with open(baseUser, "r") as f:
                 configs = json.load(f)
@@ -381,12 +375,12 @@ class Orquestrador:
         # Selecionar a Configuração para gerar o Servidor Chatbot
         #
 
+        conf = ""
         if rand:
             for x in configs["output"]:
                 conf = x
                 break
         else:
-            conf = ""
             for x in configs["output"]:
                 if x["id"] == id:
                     print(self.__class__, "Configuração selecionada: {}".format(id))
@@ -395,7 +389,7 @@ class Orquestrador:
             if conf == "":
                 print(self.__class__, "Configuração {} não existe")
                 return 1
-
+        name = "Servidor"
         #
         # Buscar arquivos necessários
         #
@@ -425,12 +419,17 @@ class Orquestrador:
         #
         # Mesclar os requeriments
         #
+        print(self.__class__,"Mesclando Requeriments")
 
+        """
+        Update:
+            Tornar mais dinâmico
+        """
         with open('src/{}/preprocess/requeriments.txt'.format(conf['preprocessamento']),"r") as f:
             p1 = f.read()
             p1 = p1+'\n'
             f.close()
-        with open('src/{}/preprocess/requeriments.txt'.format(conf['processamento']),"r") as f:
+        with open('src/{}/process-intents/requeriments.txt'.format(conf['processamento']),"r") as f:
             p2 = f.read()
             p1 = p1+p2+'\n'
             f.close()
@@ -453,7 +452,6 @@ class Orquestrador:
         except Exception:
             pass
 
-        print(configs['requerimentos'].keys())
         for x in configs['requerimentos'].keys():
             try:
                 shutil.copy('src/{}/{}/preprocess.py'.format(configs['name'],x),'src/userCode/libs')
@@ -467,7 +465,35 @@ class Orquestrador:
         #
         # Criar a maquina docker pra rodar - salvar a máquina
         #
+        dk = docker.from_env()
+        img = dk.images.build(path="src/userCode/",tag='server:{}'.format(conf['version']))
+ 
+        print('Preparando maquina Docker')
+        try:
+            container = dk.containers.run('server:{}'.format(conf['version']),ports={'10101/tcp':10101},name='Servidor',remove=False,detach=True)
+        except Exception as ex:
+            container = dk.containers.get('Servidor')
+            container.remove(force=True)
+            container = dk.containers.run('server:{}'.format(conf['version']),ports={'10101/tcp':10101},name='Servidor',remove=False,detach=True)
+        print(self.__class__, "Container {} Rodando ...".format(container.id))
 
+        #
+        # Limpa as imagens
+        #
+
+        
+        print("Servidor rodando !! 0.0.0.0:10101")
+
+        dk.containers.prune()
+
+        if save:
+            img.save()
         #
         # Limpar os dados
         #
+        self.__manipula.deletePasta('src/userCode/libs')
+        self.__manipula.deletePasta('src/userCode/arquivos')
+        os.remove('src/userCode/requerimentsGen.txt')
+
+        
+        

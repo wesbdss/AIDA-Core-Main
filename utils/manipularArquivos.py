@@ -1,12 +1,21 @@
-"""
-    Creator : Wesley B. D. S. S.
-"""
-
-import json
 import os
+import json
 
+class ManipularArquivos:
+    def __init__(self):
+        pass
+    
+    def deletePasta(self,dir=''):
+        if dir == '':
+            return 1
+        try:
+            for x in os.listdir(dir):
+                os.remove("{}/{}".format(dir,x))
+            os.rmdir(dir)
+        except Exception:
+            print(self.__class__,"O caminho {} não existe uma pasta".format(dir))
 
-class R_w_intents():
+class Intents():
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     

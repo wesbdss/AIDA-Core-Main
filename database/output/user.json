@@ -11,6 +11,18 @@
                 "database/process//metodo1"
             ],
             "version": 1
+        },
+        {
+            "id": 342117408,
+            "preprocessamento": "metodo1",
+            "processamento": "metodo1",
+            "data": "2020-02-21 07:37:12.457365",
+            "arquivos": [
+                "database/preprocess//metodo1/data.pickle",
+                "database/inputs/intents.json",
+                "database/process//metodo1"
+            ],
+            "version": 1
         }
     ]
 }

@@ -28,7 +28,7 @@
  -> Aqui deve ser gerado todo os códigos utilizado pelo usuário
 """
 
-from src import orquestrador
+from src.orquestrador import Orquestrador
 from utils import findImports
 
 
@@ -37,7 +37,7 @@ class Main:
         pass
     
     def main(self):
-        orq = orquestrador.Orquestrador()
+        orq = Orquestrador()
         # orq.preprocessamento()
         # orq.processamento()
         orq.userCode()

@@ -10,6 +10,7 @@ from unidecode import unidecode
 import nltk
 import pickle
 import sys
+import numpy
 nltk.download('punkt')
 nltk.download('rslp')
 stemmer = nltk.stem.RSLPStemmer()
@@ -20,8 +21,6 @@ class Preprocess:
         print("Modulo Iniciado: PreProcessando") ## mensagem importante
         path = os.getcwd()
         print ("O programa está sendo executado em -->  %s" % path)
-        self.main()
-        print("Modulo Terminado: PreProcessando ")## mensagem importante
 
     def main(self):
         # Pegar dados
@@ -57,6 +56,7 @@ class Preprocess:
             pass
         with open("../output/data.pickle","wb") as f:
             pickle.dump(dados,f)
+        print(self.__class__,"Módulo de preprocessamento terminado")
         return (training,output)
 
     def bagwords(self,labels,docs_x,docs_y,words):
@@ -82,7 +82,10 @@ class Preprocess:
 
         return training, output
 
-    def bag_of_words(self,s, words): # Bag of word individual
+    #
+    # Método Obrigatório em preprocessamento
+    #
+    def preprocess(self,s, words): # Bag of word individual
         bag = [0 for _ in range(len(words))]
 
         s_words = nltk.word_tokenize(s)
@@ -95,4 +98,5 @@ class Preprocess:
         return numpy.array(bag)
 
 if __name__ == "__main__":
-    Preprocess()
+    a = Preprocess()
+    a.main()
