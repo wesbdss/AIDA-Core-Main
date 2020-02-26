@@ -1,6 +1,6 @@
-# lunaChatbot
+# 	AIDA - Ambiente Diálogos Automáticos
 
-Desenvolvimento de um chatbot.
+Desenvolvimento de uma plataforma que suporta diversas tecnologias para o funcionamento de um chatbot
 
 # Arquitetura
 
