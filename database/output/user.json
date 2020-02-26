@@ -23,6 +23,30 @@
                 "database/process//metodo1"
             ],
             "version": 1
+        },
+        {
+            "id": 347036724,
+            "preprocessamento": "metodo1",
+            "processamento": "metodo1",
+            "data": "2020-02-21 11:28:10.699814",
+            "arquivos": [
+                "database/preprocess//metodo1/data.pickle",
+                "database/inputs/intents.json",
+                "database/process//metodo1"
+            ],
+            "version": 1
+        },
+        {
+            "id": 439193866,
+            "preprocessamento": "metodo1",
+            "processamento": "metodo1",
+            "data": "2020-02-25 00:23:23.107958",
+            "arquivos": [
+                "database/preprocess//metodo1/data.pickle",
+                "database/inputs/intents.json",
+                "database/process//metodo1"
+            ],
+            "version": 1
         }
     ]
 }

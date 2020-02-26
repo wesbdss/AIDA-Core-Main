@@ -1,2 +1,3 @@
 nltk==3.4.5
 Unidecode==1.1.1
+numpy

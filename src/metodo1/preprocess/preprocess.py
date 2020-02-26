@@ -11,6 +11,7 @@ import nltk
 import pickle
 import sys
 import numpy
+
 nltk.download('punkt')
 nltk.download('rslp')
 stemmer = nltk.stem.RSLPStemmer()

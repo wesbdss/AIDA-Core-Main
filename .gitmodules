@@ -1,0 +1,3 @@
+[submodule "src/Fluxo"]
+	path = src/Fluxo
+	url = https://github.com/wesbdss/AIDA-fluxo.git

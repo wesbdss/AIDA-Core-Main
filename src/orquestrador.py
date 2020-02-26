@@ -493,7 +493,6 @@ class Orquestrador:
         #
         self.__manipula.deletePasta('src/userCode/libs')
         self.__manipula.deletePasta('src/userCode/arquivos')
-        os.remove('src/userCode/requerimentsGen.txt')
 
         
         

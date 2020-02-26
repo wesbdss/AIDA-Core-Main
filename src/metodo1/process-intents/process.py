@@ -13,7 +13,7 @@ class Process:
             self.model = self.modelo(dir='arquivos/data.pickle')
             self.model.load(modeldir)
         else:
-            exit(1)
+            self.main()
 
     def carregarDado(self,dir='data.pickle'):
         try:
@@ -38,7 +38,7 @@ class Process:
     #
 
 
-    def modelo(self,epoch=1000,batch=8,dir='data.pickle'):
+    def modelo(self,dir='data.pickle'):
         _,_,training,output = self.carregarDado(dir)
         tensorflow.reset_default_graph()
         net = tflearn.input_data(shape=[None, len(training[0])])
@@ -50,8 +50,8 @@ class Process:
         return model
 
     def main(self,epoch=1000,batch=8):
-        self.model = self.modelo(epoch=epoch,batch=batch)
-        training,output = self.carregarDado()
+        self.model = self.modelo()
+        _,_,training,output = self.carregarDado()
         self.model.fit(training, output, n_epoch=epoch, batch_size=batch, show_metric=True)
         try:
             os.mkdir('../output')

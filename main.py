@@ -38,9 +38,12 @@ class Main:
     
     def main(self):
         orq = Orquestrador()
-        # orq.preprocessamento()
-        # orq.processamento()
+        orq.preprocessamento()
+        orq.processamento()
         orq.userCode()
+        """
+            Implementar o estados com YAML, and modularizar a arrumas os bugs 
+        """
         print("sucesso")
 
 
