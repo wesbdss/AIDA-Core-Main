@@ -1,21 +1,77 @@
 import os
 import json
+import re
+import shutil
+
+class FindModules:
+
+    def __init__(self):
+        pass
+
+    def _list(self,dir='',ignore=[],tipo=''):
+        #
+        # Lista pastas Válidas (Representando os métodos disponiveis)
+        #
+        ignore.append('__pycache__')
+        arquivos = os.listdir(dir)
+        arquivos = [x for x in arquivos if x not in ignore]
+        lixo = []
+        for x in arquivos:
+            lixo.append(re.search('[a-zA-Z\_\-\+]+\.[a-zA-Z]+',x))
+        lixo = set(lixo)
+        lixo.remove(None)
+        for x in lixo:
+            arquivos.remove(x.group())
+
+        if tipo != '':
+            arquivos = [x for x in arquivos if self._type(name=x,dir=dir) == tipo]
+        return arquivos
+
+    def _type(self,name='',dir=''):
+        #
+        # Verifica a tipagem do módulo
+        #
+        with open('{}/{}/config.json'.format(dir,name),'r') as f:
+            confs = json.load(f)
+            f.close()
+        return confs['type']
+
+    def _movArquivos(self,lote=[],dest=''):
+        #
+        # Copia um lote arquivos para uma pasta, ainda pode criar apenas mais uma pasta que não existe
+        #
+        try:
+            os.mkdir(dest)
+        except Exception:
+            pass
+        for x in lote:
+            shutil.copy(x,dest)
+
+
 
 class ManipularArquivos:
     def __init__(self):
         pass
     
     def deletePasta(self,dir=''):
+        #
+        # Deleta a pasta e seus arquivos
+        #
         if dir == '':
             return 1
         try:
-            for x in os.listdir(dir):
-                os.remove("{}/{}".format(dir,x))
-            os.rmdir(dir)
+            try:
+                for x in os.listdir(dir):
+                    os.remove("{}/{}".format(dir,x))
+                os.rmdir(dir)
+            except Exception:
+                os.rmdir(dir)
+                
         except Exception:
             print(self.__class__,"O caminho {} não existe uma pasta".format(dir))
 
 class Intents():
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     

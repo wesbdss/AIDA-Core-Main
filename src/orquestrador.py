@@ -20,7 +20,7 @@ python orquestrador.py PREPROCESSAMENTO PROCESSAMENTO
 import platform
 import json
 import shutil
-from utils.manipularArquivos import ManipularArquivos
+from utils.manipularArquivos import ManipularArquivos,FindModules
 import os
 import docker
 import tarfile
@@ -33,61 +33,43 @@ class Orquestrador:
         super().__init__(*args, **kwargs)
         print(self.__class__, ">> Sistema Utilizado: ", platform.system())
         path = os.getcwd()
-        self.__manipula = ManipularArquivos()
         print(self.__class__, "O programa está sendo executado em -->  %s" % path)
 
-    def preprocessamento(self, method="metodo1"):
+        """
+            Criar pastas de saida e entrada por padrão
+        """
+
+    def preprocessamento(self, method="AIDA-preprocessamento-1"):
+        ignore = ['coisasParaApagar_teste'] # pastas testes, para ignorar
         name = "preprocessamento"
         dirbase = "src/"
-        if method not in os.listdir(dirbase):
+        output= 'data'
+        fm = FindModules()
+        ma = ManipularArquivos()
+        if method not in fm._list(dir='src/',ignore=ignore,tipo=name):
             print(self.__class__, "ERR: Método inexistente")
-            return 1
-
+            return 0
+        #
+        # Abre o arquivo de comunicação do processo
+        #
+        
         with open("{}/{}/config.json".format(dirbase, method), "r") as f:
             configs = json.load(f)
             f.close()
 
         #
         #   Caminho dos dados a serem utilizados
-        #
+        #  
 
-        dataFile = configs["input"]
-
-        #
-        # mover arquivos do util para pasta com docker
-        #
-
-        diretory = "utils"
-        ar = os.listdir(path=diretory)
-        ar = [w for w in ar if w not in ["__pycache__"]]
-        try:
-            os.mkdir("{}/{}/preprocess/{}/".format(dirbase, method, diretory))
-        except:
-            pass
-        for x in ar:
-            shutil.copy(
-                "{}/{}".format(diretory, x),
-                "{}/{}/preprocess/{}/".format(dirbase, method, diretory),
-            )
+        if configs['type'] != name:
+            print(self.__class__,"Esse método não é do tipo preprocessamento")
+            return 0
 
         #
         # Adicionando a base de dados
         #
 
-        """
-        UPDATE:
-
-        implementar modo, multi intents
-        """
-        try:
-            os.mkdir("{}/{}/preprocess/database/".format(dirbase, method))
-        except:
-            pass
-        shutil.copy(
-            "{}".format(configs["input"]),
-            "{}/{}/preprocess/database/".format(dirbase, method),
-        )
-
+        fm._movArquivos(lote= configs['arquivos'],dest='{}/{}/arquivos'.format(dirbase,method))
         print(self.__class__, "Movendo Arquivos necessários")
 
         #
@@ -95,26 +77,13 @@ class Orquestrador:
         #
 
         dk = docker.from_env()
-        dk.images.build(
-            path="{}/{}/preprocess/".format(dirbase, method),
-            tag="{}:{}".format(name, configs["version"]),
-        )
+        dk.images.build(path="{}/{}/".format(dirbase, method),tag="{}:{}".format(name, configs["version"]))
         try:
-            container = dk.containers.run(
-                "{}:{}".format(name, configs["version"]),
-                name=configs["name"],
-                remove=False,
-                detach=True,
-            )
+            container = dk.containers.run("{}:{}".format(name, configs["version"]),name=configs["name"],remove=False,detach=True)
         except:
             container = dk.containers.get(configs["name"])
             container.remove(force=True)
-            container = dk.containers.run(
-                "{}:{}".format(name, configs["version"]),
-                name=configs["name"],
-                remove=False,
-                detach=True,
-            )
+            container = dk.containers.run("{}:{}".format(name, configs["version"]),name=configs["name"],remove=False,detach=True)
 
         #
         # Extrair dado do Container
@@ -125,18 +94,15 @@ class Orquestrador:
         print(self.__class__, "Container {} Terminou".format(container.id))
         a, b = container.get_archive("output/")
 
+        #
+        # Cria pasta do sistema
+        #
         try:
-            os.mkdir("{}".format(configs["output preprocess"]))
-            os.mkdir("{}/{}".format(configs["output preprocess"], method))
+            os.mkdir("database/{}/".format(method))
         except Exception:
             pass
 
-        with open(
-            "{}/{}/{}.tar".format(
-                configs["output preprocess"], method, configs["output preprocess name"]
-            ),
-            "wb",
-        ) as f:
+        with open("database/{}/{}.tar".format( method, output),"wb") as f:
             for c in a:
                 f.write(c)
             f.close()
@@ -152,36 +118,21 @@ class Orquestrador:
         # Extraindo o .zip
         #
 
-        arquivo = tarfile.open(
-            "{}/{}/{}.tar".format(
-                configs["output preprocess"], method, configs["output preprocess name"]
-            )
-        )
-        arquivo.extractall("{}/{}".format(configs["output preprocess"], method))
+        arquivo = tarfile.open("database/{}/{}.tar".format( method, output))
+        arquivo.extractall("database/{}".format(method))
         arquivo.close()
-        for x in os.listdir(
-            "{}/{}/output/".format(configs["output preprocess"], method)
-        ):
-            shutil.copy(
-                "{}/{}/output/{}".format(configs["output preprocess"], method, x),
-                "{}/{}".format(configs["output preprocess"], method),
-            )
-            os.remove("{}/{}/output/{}".format(configs["output preprocess"], method, x))
-        os.rmdir("{}/{}/output".format(configs["output preprocess"], method))
-        os.remove(
-            "{}/{}/{}.tar".format(
-                configs["output preprocess"], method, configs["output preprocess name"]
-            )
-        )
+        for x in os.listdir("database/{}/output/".format(method)):
+            shutil.copy("database/{}/output/{}".format(method, x),"database/{}".format(method))
+        ma.deletePasta(dir='database/{}/output'.format(method))
+        os.remove("database/{}/{}.tar".format(method,output))
 
         #
         # Limpar a pasta
         #
 
-        self.__manipula.deletePasta("{}/{}/preprocess/{}".format(dirbase, method, "utils"))
-        self.__manipula.deletePasta("{}/{}/preprocess/{}".format(dirbase, method, "database"))
+        ma.deletePasta("{}/{}/{}".format(dirbase, method, "arquivos"))
 
-        return 0
+        return 1
 
     def processamento(self, method="metodo1", preprocess="metodo1"):
         name = "processamento"
@@ -224,10 +175,7 @@ class Orquestrador:
         except Exception as ex:
             pass
         try:
-            shutil.copy(
-                "{}/{}/data.pickle".format(configs1["output preprocess"], preprocess),
-                "{}/{}/process-intents/database/".format(dirbase, method),
-            )
+            shutil.copy("{}/{}/data.pickle".format(configs1["output preprocess"], preprocess), "{}/{}/process-intents/database/".format(dirbase, method))
         except Exception as ex:
             print(
                 self.__class__, "Arquivo de dados pre processados não encontrados ", ex
