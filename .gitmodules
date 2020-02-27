@@ -4,3 +4,6 @@
 [submodule "src/preprocessamento/AIDA-preprocessamento-1"]
 	path = src/preprocessamento/AIDA-preprocessamento-1
 	url = https://github.com/wesbdss/AIDA-preprocessamento-1.git
+[submodule "src/processamento/AIDA-processamento-1"]
+	path = src/processamento/AIDA-processamento-1
+	url = https://github.com/wesbdss/AIDA-processamento-1.git
