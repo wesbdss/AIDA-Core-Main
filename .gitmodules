@@ -1,0 +1,12 @@
+[submodule "src/AIDA-preprocessamento-1"]
+	path = src/AIDA-preprocessamento-1
+	url = https://github.com/wesbdss/AIDA-preprocessamento-1.git
+[submodule "src/AIDA-processamento-1"]
+	path = src/AIDA-processamento-1
+	url = https://github.com/wesbdss/AIDA-processamento-1.git
+[submodule "src/AIDA-usercode"]
+	path = src/AIDA-usercode
+	url = https://github.com/wesbdss/AIDA-usercode.git
+[submodule "src/AIDA-fluxo"]
+	path = src/AIDA-fluxo
+	url = https://github.com/wesbdss/AIDA-fluxo.git
