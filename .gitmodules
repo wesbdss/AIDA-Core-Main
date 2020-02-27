@@ -1,7 +1,3 @@
-[submodule "src/fluxo"]
-
-	path = src/fluxo
-	url = https://github.com/wesbdss/AIDA-fluxo.git
 
 	
 [submodule "src/AIDA-preprocessamento-1"]
