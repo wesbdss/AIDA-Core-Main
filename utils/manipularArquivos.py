@@ -9,15 +9,18 @@ class FindModules:
         pass
 
     def _list(self,dir='',ignore=[],tipo=''):
+        
         #
         # Lista pastas Válidas (Representando os métodos disponiveis)
         #
+
         ignore.append('__pycache__')
         arquivos = os.listdir(dir)
         arquivos = [x for x in arquivos if x not in ignore]
         lixo = []
         for x in arquivos:
             lixo.append(re.search('[a-zA-Z\_\-\+]+\.[a-zA-Z]+',x))
+            lixo.append(re.search('[a-zA-Z\_\-\+]+\_teste',x))
         lixo = set(lixo)
         lixo.remove(None)
         for x in lixo:
@@ -45,7 +48,11 @@ class FindModules:
         except Exception:
             pass
         for x in lote:
-            shutil.copy(x,dest)
+            try:
+                shutil.copy(x,dest)
+            except Exception:
+                for y in os.listdir(x):
+                    shutil.copy("{}/{}".format(x,y),dest)
 
 
 

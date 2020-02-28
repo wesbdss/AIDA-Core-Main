@@ -1,0 +1,56 @@
+{
+    "output": [
+        {
+            "id": 0,
+            "preprocessamento": "AIDA-preprocessamento-1",
+            "processamento": "AIDA-processamento-1",
+            "data": "2020-02-27 13:01:01.610144",
+            "arquivos": [
+                "database/AIDA-preprocessamento-1/data.pickle",
+                "database/inputs/intents.json",
+                "database/AIDA-processamento-1"
+            ],
+            "version process": 1,
+            "version preprocess": 1
+        },
+        {
+            "id": 1,
+            "preprocessamento": "AIDA-preprocessamento-1",
+            "processamento": "AIDA-processamento-1",
+            "data": "2020-02-27 13:06:20.533887",
+            "arquivos": [
+                "database/AIDA-preprocessamento-1/data.pickle",
+                "database/inputs/intents.json",
+                "database/AIDA-processamento-1"
+            ],
+            "version process": 1,
+            "version preprocess": 1
+        },
+        {
+            "id": 2,
+            "preprocessamento": "AIDA-preprocessamento-1",
+            "processamento": "AIDA-processamento-1",
+            "data": "2020-02-27 22:01:20.545360",
+            "arquivos": [
+                "database/AIDA-preprocessamento-1/data.pickle",
+                "database/inputs/intents.json",
+                "database/AIDA-processamento-1"
+            ],
+            "version process": 1,
+            "version preprocess": 1
+        },
+        {
+            "id": 3,
+            "preprocessamento": "AIDA-preprocessamento-1",
+            "processamento": "AIDA-processamento-1",
+            "data": "2020-02-27 22:15:48.082538",
+            "arquivos": [
+                "database/AIDA-preprocessamento-1/data.pickle",
+                "database/inputs/intents.json",
+                "database/AIDA-processamento-1"
+            ],
+            "version process": 1,
+            "version preprocess": 1
+        }
+    ]
+}

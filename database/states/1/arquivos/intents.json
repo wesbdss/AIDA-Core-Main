@@ -1,0 +1,28 @@
+{"intents": [
+        {"tag": "saudacao",
+         "patterns": ["Oi", "Olá", "Bom dia", "Boa tarde", "Boa noite", "E aí"],
+         "responses": ["Oi, Obrigado por visitar", "Foi bom te ver", "Oi, voce precisa de ajuda?"],
+         "context_set": ""
+        },
+        {"tag": "despedida",
+         "patterns": ["Tchau", "Te vejo mais tarde", "Adeus", "Xau"],
+         "responses": ["Te vejo mais tarde", "Tenha um ótimo dia", "Tchau, volte mais tarde"]
+        },
+        {"tag": "agradecimentos",
+         "patterns": ["Obrigado", "Obrigada", "Foi de muita ajuda!"],
+         "responses": ["Fico feliz em ajudar!", "Denada!", "Obrigado"]
+        },
+        {"tag": "piadas",
+         "patterns": ["Me conte uma piada", "piada", "fala uma piada" ],
+         "responses": ["Qual maior defeito de um esqueleto? /n/n ele e CABEÇA DURA!", "Por que o esqueleto venceu a batalha? /n/n porque ele poderOSSO."]
+        },
+        {"tag": "sobre",
+         "patterns": ["quem é vc?", "qual seu nome", "O que vc é" ],
+         "responses": ["Meu nome é Wesley, sou programador.", "Wesley, Programador, :)"]
+        },
+        {"tag": "elogio",
+         "patterns": ["Voce é muito bonito", "Linda", "tu es linda"],
+         "responses": ["Obrigado", "Voce tambem é"]
+        }
+   ]
+}
