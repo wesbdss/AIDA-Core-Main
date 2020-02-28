@@ -1,4 +1,4 @@
-# 	AIDA - Ambiente Diálogos Automáticos
+# 	AiDA - Ambiente Diálogos Automáticos
 
 Desenvolvimento de uma plataforma que suporta diversas tecnologias para o funcionamento de um chatbot
 
