@@ -51,6 +51,45 @@
             ],
             "version process": 1,
             "version preprocess": 1
+        },
+        {
+            "id": 4,
+            "preprocessamento": "AIDA-preprocessamento-1",
+            "processamento": "AIDA-processamento-1",
+            "data": "2020-03-04 15:20:53.259718",
+            "arquivos": [
+                "database/AIDA-preprocessamento-1/data.pickle",
+                "database/inputs/intents.json",
+                "database/AIDA-processamento-1"
+            ],
+            "version process": 1,
+            "version preprocess": 1
+        },
+        {
+            "id": 5,
+            "preprocessamento": "AIDA-preprocessamento-1",
+            "processamento": "AIDA-processamento-1",
+            "data": "2020-03-05 15:04:53.628674",
+            "arquivos": [
+                "database/AIDA-preprocessamento-1/data.pickle",
+                "database/inputs/intents.json",
+                "database/AIDA-processamento-1"
+            ],
+            "version process": 1,
+            "version preprocess": 1
+        },
+        {
+            "id": 6,
+            "preprocessamento": "AIDA-preprocessamento-1",
+            "processamento": "AIDA-processamento-1",
+            "data": "2020-03-05 15:06:56.006949",
+            "arquivos": [
+                "database/AIDA-preprocessamento-1/data.pickle",
+                "database/inputs/intents.json",
+                "database/AIDA-processamento-1"
+            ],
+            "version process": 1,
+            "version preprocess": 1
         }
     ]
 }
