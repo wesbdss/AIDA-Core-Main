@@ -8,8 +8,9 @@ import pickle
 import os
 
 class Process:
-    def __init__(self,modeldir='arquivos/model.tflearn'):
-        if os.path.exists('arquivos/model.tflearn'):
+    def __init__(self,modeldir='arquivos/model.tflearn',load=False):
+        if load:
+            print(">>> CARREGOU")
             self.model = self.modelo(dir='arquivos/data.pickle')
             self.model.load(modeldir)
 
