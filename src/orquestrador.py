@@ -16,7 +16,8 @@ Sintaxe dele vai ser
 
 python orquestrador.py PREPROCESSAMENTO PROCESSAMENTO 
 """
-
+import logging
+logging.basicConfig(filename='logs/orquestrador.log', level=logging.DEBUG, format=' %(asctime)s - %(message)s')
 import platform
 import json
 import shutil
@@ -31,66 +32,65 @@ import random
 class Orquestrador:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        print(self.__class__, ">> Sistema Utilizado: ", platform.system())
-        path = os.getcwd()
-        print(self.__class__, "O programa está sendo executado em -->  %s" % path)
-        """
-            Criar pastas de saida e entrada por padrão
-        """
+
+        logging.debug("{} - {} - {}".format(self.__class__,"Sistema utilizado",platform.system()))
+
+        logging.debug("{} - {} - {}".format(self.__class__,"Path executado",os.getcwd()))
+
+        # 
+        #   Criar pastas de saida e entrada por padrão
+        # 
         try:
+            logging.debug("{} - {} - {}".format(self.__class__,"Criando ","database/output"))
             os.mkdir('database/output')
         except Exception:
             pass
         try:
+            logging.debug("{} - {} - {}".format(self.__class__,"Criando ","database/states"))
             os.mkdir('database/states')
         except Exception:
             pass
 
     def preprocessamento(self, method="AIDA-preprocessamento-1"):
 
-        #
-        # Compõe a preparação do ambiente para funcionamento do preprocessamento da entrada
-        #
-
-        name = "preprocessamento"
-        dirbase = "src"
-        output= 'data'
+        logging.debug("{} - {} - {}".format(self.__class__,"Iniciando ",method))
 
         fm = FindModules()
         ma = ManipularArquivos()
 
+        #
+        # Compõe a preparação do ambiente para funcionamento do preprocessamento da entrada
+        #
+
+        name = "preprocessamento" #Constante, usado para identificação de tipagem dos métodos nos arquivos de configuração
+
         if method not in fm._list(dir='src/',tipo=name):
-            print(self.__class__, "ERR: Método inexistente ou configuração inválida")
+            logging.debug("{} - {} - {} - {}".format(self.__class__ ,"ERRO ","Método inexistente ou configuração inválida",method))
             return 0
         #
         # Abre o arquivo de comunicação do processo
         #
         
-        with open("{}/{}/config.json".format(dirbase, method), "r") as f:
+        with open("src/{}/config.json".format(method), "r") as f:
             configs = json.load(f)
             f.close()
 
-        #
-        #   Caminho dos dados a serem utilizados
-        #  
-
-        if configs['type'] != name:
-            print(self.__class__,"Esse método não é do tipo preprocessamento")
-            return 0
 
         #
         # Adicionando a base de dados
         #
 
-        fm._movArquivos(lote= configs['arquivos'],dest='{}/{}/arquivos'.format(dirbase,method))
-        print(self.__class__, "Movendo Arquivos necessários")
+        logging.debug("{} - {} - {}".format(self.__class__,"Movendo Arquivos Necessários",method))
+
+        fm._movArquivos(lote= configs['arquivos'],dest='src/{}/arquivos'.format(method))
+        
 
         #
         # rodar o docker
         #
 
         dk = docker.from_env()
-        dk.images.build(path="{}/{}/".format(dirbase, method),tag="{}:{}".format(name, configs["version"]))
+        dk.images.build(path="src/{}/".format(method),tag="{}:{}".format(name, configs["version"]))
         try:
             container = dk.containers.run("{}:{}".format(name, configs["version"]),name=configs["name"],remove=False,detach=True)
         except:
@@ -102,20 +102,21 @@ class Orquestrador:
         # Extrair dado do Container
         #
 
-        print(self.__class__, "Container {} Rodando ...".format(container.id))
+        logging.debug("{} - {} {} - {}".format(self.__class__,"Container Rodando",container.id,method))
         container.wait()
-        print(self.__class__, "Container {} Terminou".format(container.id))
+        logging.debug("{} - {} {} - {}".format(self.__class__,"Container Terminado",container.id,method))
         a, b = container.get_archive("output/")
 
         #
         # Cria pasta do sistema
         #
         try:
+            logging.debug("{} - {} -  {} - {}".format(self.__class__,"Criando","database/{}/".format(method),method))
             os.mkdir("database/{}/".format(method))
         except Exception:
             pass
 
-        with open("database/{}/{}.tar".format( method, output),"wb") as f:
+        with open("database/{}/{}.tar".format( method, configs["save"]),"wb") as f:
             for c in a:
                 f.write(c)
             f.close()
@@ -124,37 +125,37 @@ class Orquestrador:
         # Limpa container desnecessários (CASO DER ERRO, RETIRAR ESSA OPÇâO PARA DEBUG)
         #   WARNING: Se houver containers importantes, não esquecer de remover essa opção
 
-        print("Warning: Os containers não utilizados serão apagados!")
+        logging.debug("{} - {} - {} - {}".format(self.__class__,"Warning","Se houver containers importantes não esquecer de remover essa opção",method))
         dk.containers.prune()
 
         #
         # Extraindo o .zip
         #
-
-        arquivo = tarfile.open("database/{}/{}.tar".format( method, output))
+        logging.debug("{} - {} - {}".format(self.__class__,"Extraindo zip","database/{}/output".format(method)))
+        arquivo = tarfile.open("database/{}/{}.tar".format( method, configs["save"]))
         arquivo.extractall("database/{}".format(method))
         arquivo.close()
         for x in os.listdir("database/{}/output/".format(method)):
             shutil.copy("database/{}/output/{}".format(method, x),"database/{}".format(method))
         ma.deletePasta(dir='database/{}/output'.format(method))
-        os.remove("database/{}/{}.tar".format(method,output))
+        os.remove("database/{}/{}.tar".format(method,configs["save"]))
 
         #
         # Limpar a pasta
         #
 
-        ma.deletePasta("{}/{}/{}".format(dirbase, method, "arquivos"))
+        ma.deletePasta("src/{}/{}".format(method, "arquivos"))
         return 1
 
     def processamento(self, method="AIDA-processamento-1", preprocess="AIDA-preprocessamento-1"):
+
+        logging.debug("{} - {} - {}".format(self.__class__,"Iniciando ",method))
 
         #
         # Compõe a preparação do ambiente para funcionamento do preprocessamento da entrada
         #
 
-        name = "processamento"
-        dirbase = "src"
-        output= "data"
+        name = "processamento" #Constante, usado para identificação de tipagem dos métodos nos arquivos de configuração
 
         #
         #   Verifica erros
@@ -164,22 +165,22 @@ class Orquestrador:
         ma = ManipularArquivos()
 
         if method not in fm._list(dir='src/',tipo=name):
-            print(self.__class__, "ERR: Método inexistente ou configuração inválida")
+            logging.debug("{} - {} - {} - {}".format(self.__class__ ,"ERRO ","Método inexistente ou configuração inválida (Processamento)",method))
             return 0
         
         if preprocess not in fm._list(dir='src/',tipo="preprocessamento"):
-            print(self.__class__, "ERR: Método inexistente ou configuração inválida")
+            logging.debug("{} - {} - {} - {}".format(self.__class__ ,"ERRO ","Método inexistente ou configuração inválida (Pre Processamento)",method))
             return 0
 
         #
         # Abre as configurações
         #
 
-        with open("{}/{}/config.json".format(dirbase, method), "r") as f:  # Etapa corrente configs
+        with open("src/{}/config.json".format(method), "r") as f:  # Etapa corrente configs
             configs = json.load(f)
             f.close()
 
-        with open("{}/{}/config.json".format(dirbase, preprocess), "r") as f:  # Etapa anterior configs
+        with open("src/{}/config.json".format(preprocess), "r") as f:  # Etapa anterior configs
             configs1 = json.load(f)
             f.close()
 
@@ -189,17 +190,17 @@ class Orquestrador:
 
         """
         UPDATE:
-            Arrumar pra pegar arquivos dinâmicos
+            Arrumar pra pegar arquivos dinâmicos, pois as saidas do preprocessamentos são únicas (caso não sejam mais) modificar
         """
         try:
-            os.mkdir("{}/{}/arquivos".format(dirbase, method))
+            os.mkdir("src/{}/arquivos".format(method)) 
         except Exception as ex:
             pass
         try:
             for x in configs['arquivos']:
-                shutil.copy(x.format(configs1['name'],configs1['save']), "{}/{}/arquivos".format(dirbase, method))
+                shutil.copy(x.format(configs1['name'],configs1['output']), "src/{}/arquivos".format(method))
         except Exception as ex:
-            print(self.__class__, "Arquivo de dados pre processados não encontrados ", ex)
+            logging.debug("{} - {} - {}".format(self.__class__ ,"Arquivos não encontrados",method))
             return 1
 
         #
@@ -207,7 +208,7 @@ class Orquestrador:
         #
 
         dk = docker.from_env()
-        dk.images.build(path="{}/{}/".format(dirbase, method),tag="{}:{}".format(name, configs["version"]),)
+        dk.images.build(path="src/{}/".format(method),tag="{}:{}".format(name, configs["version"]),)
 
         try:
             container = dk.containers.run("{}:{}".format(name, configs["version"]),name=configs["name"],remove=False,detach=True)
@@ -216,16 +217,16 @@ class Orquestrador:
             container.remove(force=True)
             container = dk.containers.run("{}:{}".format(name, configs["version"]),name=configs["name"],remove=False,detach=True)
         
-        print(self.__class__, "Container {} Rodando ...".format(container.id))
+        logging.debug("{} - {} {} - {}".format(self.__class__,"Container Rodando",container.id,method))
         container.wait()
-        print(self.__class__, "Container {} Terminou".format(container.id))
+        logging.debug("{} - {} {} - {}".format(self.__class__,"Container Terminado",container.id,method))
         a, b = container.get_archive("output/")
 
         try:
             os.mkdir("database/{}".format(configs["name"]))
         except:
             pass
-        with open("database/{}/{}.tar".format(method, output),"wb") as f:
+        with open("database/{}/{}.tar".format(method, configs['output']),"wb") as f:
             for c in a:
                 f.write(c)
             f.close()
@@ -234,14 +235,14 @@ class Orquestrador:
         # Limpa container desnecessários (CASO DER ERRO, RETIRAR ESSA OPÇâO PARA DEBUG)
         #   WARNING: Se houver containers importantes, não esquecer de remover essa opção
 
-        print("Warning: Os containers não utilizados serão apagados!")
+        logging.debug("{} - {} - {} - {}".format(self.__class__,"Warning","Se houver containers importantes não esquecer de remover essa opção",method))
         dk.containers.prune()
 
         #
         # Extraindo o .zip
         #
 
-        arquivo = tarfile.open("database/{}/{}.tar".format( method, output))
+        arquivo = tarfile.open("database/{}/{}.tar".format( method, configs['output']))
         arquivo.extractall("database/{}/".format(method))
         arquivo.close()
 
@@ -249,13 +250,13 @@ class Orquestrador:
         for x in os.listdir("database/{}/output/".format(method)):
             shutil.copy("database/{}/output/{}".format(method, x),"database/{}".format(method))
         ma.deletePasta('database/{}/output/'.format(method))
-        os.remove("database/{}/{}.tar".format(method,output))
+        os.remove("database/{}/{}.tar".format(method,configs['output']))
 
         #
         # Limpar pasta
         #
 
-        ma.deletePasta( "{}/{}/{}".format(dirbase, method, "arquivos"))
+        ma.deletePasta( "src/{}/{}".format(method, "arquivos"))
 
         #
         # Gera um log das tecnicas utilizadas
@@ -288,7 +289,7 @@ class Orquestrador:
                 }
             ]
         } 
-        print(self.__class__, "Gerando user.json ")
+        logging.debug("{} - {} - {}".format(self.__class__,"Gerando user.json",method))
         if os.path.exists("{}/user.json".format("database/output")):
             with open("{}/user.json".format("database/output"), "r") as f:
                 a = json.load(f)
@@ -305,13 +306,16 @@ class Orquestrador:
                 f.close()
         return 0
 
-    def userCode(self, baseUser="database/output/user.json",method="AIDA-usercode",id=1, rand=False,save=False,port=10101):
+    def userCode(self, baseUser="database/output/user.json",method="AIDA-usercode",id='default', rand=False,save=False,port=10101):
+        logging.debug("{} - {} - {}".format(self.__class__,"Iniciando ",method))
+
         fm = FindModules()
-        name = "servidor"
         ma = ManipularArquivos()
 
+        name = "servidor"
+
         if method not in fm._list(dir='src/',tipo=name):
-            print(self.__class__, "ERR: Método inexistente ou configuração inválida")
+            logging.debug("{} - {} - {} - {}".format(self.__class__ ,"ERRO ","Método inexistente ou configuração inválida ",method))
             return 0
 
         try:
@@ -319,7 +323,7 @@ class Orquestrador:
                 configs = json.load(f)
                 f.close()
         except Exception:
-            print(self.__class__, "ERRO: Não há configuração, rode o aplicativo processamento e o preprocessamento")
+            logging.debug("{} - {} - {} - {}".format(self.__class__ ,"ERRO ","Configuração inválida, Rode o Aplicativo Novamente",method))
             return 0
 
         #
@@ -334,11 +338,11 @@ class Orquestrador:
         else:
             for x in configs["output"]:
                 if x["id"] == id:
-                    print(self.__class__, "Configuração selecionada: {}".format(id))
+                    logging.debug("{} - {} - {} - {}".format(self.__class__ ,"Configuração Selecionada",id,method))
                     conf = x
                     break
             if conf == "":
-                print(self.__class__, "Configuração {} não existe")
+                logging.debug("{} - {} - {}".format(self.__class__ ,"ERRO ","Configuração Não existe",method))
                 return 0
         #
         # Buscar arquivos necessários
@@ -348,18 +352,15 @@ class Orquestrador:
             os.mkdir("src/{}/arquivos".format(method))
         except Exception:
             pass
-        for x in conf['arquivos']:
-            try:
-                shutil.copy(x,'src/{}/arquivos'.format(method))
-            except Exception as ex: #pega subarquivos  UMA PROFUNDIDADE APENAS
-                for y in os.listdir(x):
-                    shutil.copy('{}/{}'.format(x,y),'{}'.format('src/{}/arquivos'.format(method)))
+
+        fm._movArquivos(lote= conf['arquivos'],dest='src/{}/arquivos'.format(method))
 
         #
         # Mesclar os requeriments
         #
 
-        print(self.__class__,"Mesclando Requeriments")
+        logging.debug("{} - {} - {}".format(self.__class__ ,"Mesclando Requeriments",method))
+
 
         """
         Update:
@@ -398,33 +399,35 @@ class Orquestrador:
             shutil.copy('src/{}/preprocess.py'.format(conf['preprocessamento'],x),'src/{}/libs'.format(method))
             shutil.copy('src/{}/process.py'.format(conf['processamento'],x),'src/{}/libs'.format(method))
         except Exception:
-            print("Não há requeriments")
+            logging.debug("{} - {} - {}".format(self.__class__ ,"Não Há Requerimentos",method))
+
 
         
 
         #
         # Criar a maquina docker pra rodar - salvar a máquina
         #
+
         dk = docker.from_env()
         img = dk.images.build(path="src/{}/".format(method),tag='server:{}'.format(conf['id']))
         
-        print(self.__class__,'Preparando maquina Docker')
         try:
             container = dk.containers.run('server:{}'.format(conf['id']),ports={'10101/tcp':port},name=method,remove=False,detach=True)
         except Exception as ex:
             container = dk.containers.get(method)
             container.remove(force=True)
             container = dk.containers.run('server:{}'.format(conf['id']),ports={'10101/tcp':port},name=method.format(method),remove=False,detach=True)
-        print(self.__class__, "Container {} Rodando ...".format(container.id))
+        
+        logging.debug("{} - {} - {}".format(self.__class__ ,"Servidor Rodando localhost:10101",method))
+
 
         #
         # Limpa as imagens
         #
 
-        
-        print(self.__class__,"Servidor Rodando 0.0.0.0:{}".format(port))
-
+        logging.debug("{} - {} - {} - {}".format(self.__class__,"Warning","Se houver containers importantes não esquecer de remover essa opção",method))
         dk.containers.prune()
+
 
         #
         # Salvar estado dos dados
@@ -437,6 +440,8 @@ class Orquestrador:
                 pass
             fm._movArquivos(['src/{}/libs'.format(method)],dest='database/states/{}/libs'.format(conf['id']))
             fm._movArquivos(['src/{}/arquivos'.format(method)],dest='database/states/{}/arquivos'.format(conf['id']))
+            shutil.copy('src/{}/server.py'.format(method),'database/states/{}/'.format(conf['id']))
+            shutil.copy('src/{}/Dockerfile'.format(method),'database/states/{}/'.format(conf['id']))
             with open("database/states/{}/config.json".format(conf['id']),"w") as f:
                 f.write(json.dumps(conf))
                 f.close()

@@ -1,6 +1,7 @@
 import os
 import json
 import re
+import logging
 import shutil
 
 class FindModules:
@@ -13,6 +14,8 @@ class FindModules:
         #
         # Lista pastas Válidas (Representando os métodos disponiveis)
         #
+        logging.debug("{} - {} - Parameters - {} - {}".format(self.__class__,"_list",ignore,tipo))
+
 
         ignore.append('__pycache__')
         arquivos = os.listdir(dir)
@@ -34,6 +37,8 @@ class FindModules:
         #
         # Verifica a tipagem do módulo
         #
+        logging.debug("{} - {} - Parameters - {} - {}".format(self.__class__,"_type",name,dir))
+
         with open('{}/{}/config.json'.format(dir,name),'r') as f:
             confs = json.load(f)
             f.close()
@@ -43,6 +48,7 @@ class FindModules:
         #
         # Copia um lote arquivos para uma pasta, ainda pode criar apenas mais uma pasta que não existe
         #
+        logging.debug("{} - {} - Parameters - {} - {}".format(self.__class__,"_movArquivos",lote,dest))
         try:
             os.mkdir(dest)
         except Exception:
@@ -64,6 +70,9 @@ class ManipularArquivos:
         #
         # Deleta a pasta e seus arquivos
         #
+
+        logging.debug("{} - {} - Parameters - {}".format(self.__class__,"deletePasta",dir))
+
         if dir == '':
             return 1
         try:
@@ -75,7 +84,8 @@ class ManipularArquivos:
                 os.rmdir(dir)
                 
         except Exception:
-            print(self.__class__,"O caminho {} não existe uma pasta".format(dir))
+            logging.debug("{} - {} - Parameters - {} - {}".format(self.__class__,"Erro","Caminho da pasta não existe",dir))
+
 
 class Intents():
 
@@ -83,6 +93,7 @@ class Intents():
         super().__init__(*args, **kwargs)
     
     def readJson(self='',dir=''): # lê o arquivo json inteiro
+        logging.debug("{} - {} - Parameters - {} - {}".format(self.__class__,"readJson",dir))
 
         if dir == '':
             dir = "./data/intents.json"
@@ -95,7 +106,9 @@ class Intents():
                 dados = json.load(data)
             return dados
         
-    def writeIntent (self ='', tag ='', value = '',dir= ''): #escreve uma tag e um valor no arquivo
+    def writeIntent (self, tag ='', value = '',dir= ''): #escreve uma tag e um valor no arquivo
+        logging.debug("{} - {} - Parameters - {} - {} - {}".format(self.__class__,"writeIntent",tag,value,dir))
+
         if dir == '':
             dir = "./data/intents.json"
         if tag == '' or value == '':
@@ -118,7 +131,9 @@ class Intents():
                 json.dump(dados,data,indent= 3,ensure_ascii=False)
             return 'OK'
         
-    def readIntent (self = '',tag ='',dir=''): #encontra a tag em um arquivo json
+    def readIntent (self,tag ='',dir=''): #encontra a tag em um arquivo json
+        logging.debug("{} - {} - Parameters - {} - {}".format(self.__class__,"readIntent",tag,dir))
+
         if dir == '':
             dir = "./data/intents.json"
         if tag == '':

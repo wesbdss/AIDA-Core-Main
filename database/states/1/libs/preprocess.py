@@ -17,6 +17,10 @@ nltk.download('rslp')
 stemmer = nltk.stem.RSLPStemmer()
 word_tokenize = nltk.tokenize.word_tokenize
 
+with open('config.json') as f:
+    configs = json.load(f)
+    f.close()
+
 class Preprocess:
     def __init__(self):
         print("Modulo Iniciado: PreProcessando") ## mensagem importante
