@@ -7,6 +7,6 @@
 [submodule "src/AIDA-usercode"]
 	path = src/AIDA-usercode
 	url = https://github.com/wesbdss/AIDA-usercode.git
-[submodule "src/AIDA-fluxo"]
-	path = src/AIDA-fluxo
+[submodule "utils/AIDA-fluxo"]
+	path = utils/AIDA-fluxo
 	url = https://github.com/wesbdss/AIDA-fluxo.git

@@ -280,9 +280,10 @@ class Orquestrador:
                     "processamento": method,
                     "data": "{}".format(datetime.datetime.now()),
                     "arquivos": [
-                        "database/{}/{}".format( preprocess,configs1['save']),
+                        "database/{}/{}".format( preprocess,configs1['output']),
                         "database/inputs/intents.json",
                         "database/{}".format(method),
+                        "database/inputs/fluxo.yaml"
                     ],
                     "version process": configs["version"],
                     "version preprocess": configs1["version"]
@@ -306,7 +307,11 @@ class Orquestrador:
                 f.close()
         return 0
 
-    def userCode(self, baseUser="database/output/user.json",method="AIDA-usercode",id='default', rand=False,save=False,port=10101):
+    def userCode(self,method="AIDA-usercode",id=1, rand=False,save=False,port=10101):
+        """
+            UPDATE:
+                Adapatação dos caminhos, para os caminhos do config.json
+        """
         logging.debug("{} - {} - {}".format(self.__class__,"Iniciando ",method))
 
         fm = FindModules()
@@ -317,9 +322,17 @@ class Orquestrador:
         if method not in fm._list(dir='src/',tipo=name):
             logging.debug("{} - {} - {} - {}".format(self.__class__ ,"ERRO ","Método inexistente ou configuração inválida ",method))
             return 0
+        
+        #
+        # Abrindo configurações config.json
+        #
+
+        with open('src/{}/config.json'.format(method)) as f:
+            conf = json.load(f)
+            f.close()
 
         try:
-            with open(baseUser, "r") as f:
+            with open(conf['userConf'], "r") as f:
                 configs = json.load(f)
                 f.close()
         except Exception:
@@ -398,6 +411,8 @@ class Orquestrador:
         try:
             shutil.copy('src/{}/preprocess.py'.format(conf['preprocessamento'],x),'src/{}/libs'.format(method))
             shutil.copy('src/{}/process.py'.format(conf['processamento'],x),'src/{}/libs'.format(method))
+            shutil.copy('utils/componenteServer.py','src/{}/libs'.format(method))
+            shutil.copy('utils/AIDA-fluxo','src/{}/libs'.format(method))
         except Exception:
             logging.debug("{} - {} - {}".format(self.__class__ ,"Não Há Requerimentos",method))
 

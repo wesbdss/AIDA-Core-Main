@@ -1,0 +1,39 @@
+
+
+# As etapas dos diálogos são dados pelos seguinter termos
+
+# 
+#  A estrutura
+# 
+
+# label:
+#   response: "RESPOSTA"
+#   output:
+#     label1: "LABEL"
+#     label2: "LABEL"
+
+# Obrigatório ter init
+init: "primeiro"
+
+primeiro:
+  response: ["Oie","hii", "hello"]
+  output:
+    saudacao: "segundo"
+    piadas: "terceiro"
+    empty: "fim"
+
+segundo:
+  response: "oie dnv"
+  output:
+    empty: "fim"
+    saudacao: "segundo"
+
+terceiro:
+  response: "Num quero"
+  output:
+    saudacao: "segundo"
+    empty: "fim"
+
+fim:
+  response: "Vixi acabou"
+

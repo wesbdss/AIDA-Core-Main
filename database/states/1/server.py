@@ -23,63 +23,21 @@ ou
 
 import asyncio
 import websockets
-from libs.process import Process
-from libs.preprocess import Preprocess
-import json
-import random
-
-with open("arquivos/intents.json") as file:
-    data = json.load(file)
-
+from libs.componenteServer import ComponenteServer
 
 class Server:
-    def __init__(self):
-        self.pcss = Process(load=True)
-        self.ppcss = Preprocess()
     
     async def chat(self,sock,path):
+        component = ComponenteServer(fluxo=False)
         while True:
-            words,labels,_,_ = self.pcss.carregarDado(dir='arquivos/data.pickle')
-
-            #
-            # Get dados do usuário
-            #
-
-            #
-            # Importar processos
-            #
-
             entrada =  await sock.recv()
             print(sock," > ",entrada)
             if entrada == 'quit': #fecha o servidor
                 exit()
-
             #
             # Implementar requests Json
             #
-
-            
-
-            #
-            # Carregar labels e tabela de palavras
-            #
-
-            results, results_index = self.pcss.predict(self.ppcss.preprocess(entrada,words))
-            tag = labels[results_index]
-            responses = []
-            if results[results_index]> 0.6:
-                for tg in data["intents"]:
-                    if tg['tag'] == tag:
-                        responses = tg['responses']
-                await sock.send(random.choice(responses))
-                print(random.choice(responses))
-            else: 
-                print("Eu não entendi o que vc falou")
-                await sock.send("Não entendi o que vc falou!")
-                #
-                # Implementar o sistema de reaproveitamento de frases CSV
-                #
-            print(results)
+            await sock.send(component.response(entrada))
 
     def main(self):
         print("Servidor rodando 0.0.0.0:10101")
