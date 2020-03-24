@@ -1,3 +1,5 @@
+![Logo](imgs/AiDAGit.png)
+
 # 	AiDA - Ambiente Diálogos Automáticos
 
 Desenvolvimento de uma plataforma que implementa-se diversas tecnologias para o funcionamento de um chatbot
@@ -7,7 +9,7 @@ Desenvolvimento de uma plataforma que implementa-se diversas tecnologias para o 
 ![Arquitetura](imgs/estrutura.png)
 
 # Estruturação do Arquivo config.json
-'''json
+'''javascript
 {
     "name":"nome_da_pasta_modulo",
     "type": "tipo_do_modulo",
