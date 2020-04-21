@@ -16,8 +16,10 @@ Sintaxe dele vai ser
 
 python orquestrador.py PREPROCESSAMENTO PROCESSAMENTO 
 """
+
 import logging
-logging.basicConfig(filename='logs/orquestrador.log', level=logging.DEBUG, format=' %(asctime)s - %(message)s')
+import time
+logging.basicConfig(filename='logs/orquestrador'+str(time.time())+'.log', level=logging.DEBUG, format=' %(asctime)s - %(message)s')
 import platform
 import json
 import shutil
@@ -456,6 +458,7 @@ class Orquestrador:
             fm._movArquivos(['src/{}/libs'.format(method)],dest='database/states/{}/libs'.format(conf['id']))
             fm._movArquivos(['src/{}/arquivos'.format(method)],dest='database/states/{}/arquivos'.format(conf['id']))
             shutil.copy('src/{}/server.py'.format(method),'database/states/{}/'.format(conf['id']))
+            shutil.copy('src/{}/requerimentsGen.txt'.format(method),'database/states/{}/'.format(conf['id']))
             shutil.copy('src/{}/Dockerfile'.format(method),'database/states/{}/'.format(conf['id']))
             with open("database/states/{}/config.json".format(conf['id']),"w") as f:
                 f.write(json.dumps(conf))

@@ -29,18 +29,27 @@
 """
 
 from src.orquestrador import Orquestrador
-from utils import findImports
+import logging
+import sys
+from interface import TestApp
 
 
 class Main:
     def __init__(self):
+        self.orq = Orquestrador()
         pass
+
+    def readLog(self):
+        logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
     
     def main(self):
-        orq = Orquestrador()
-        orq.preprocessamento()
-        orq.processamento()
-        orq.userCode(save=True)
+        self.readLog()
+        # TestApp().run()
+        
+        self.orq.preprocessamento()
+        self.orq.processamento()
+        self.orq.userCode(save=True,id=2)
+        
         """
             Implementar o estados com YAML, and modularizar a arrumas os bugs 
         """
