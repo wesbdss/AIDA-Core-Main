@@ -31,7 +31,6 @@
 from src.orquestrador import Orquestrador
 import logging
 import sys
-from interface import TestApp
 
 
 class Main:
@@ -44,7 +43,6 @@ class Main:
     
     def main(self):
         self.readLog()
-        # TestApp().run()
         
         self.orq.preprocessamento()
         self.orq.processamento()

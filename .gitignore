@@ -108,3 +108,7 @@ data/*
 
 *_teste/
 output/*
+src/AIDA-*
+database/*
+
+testeserver.http

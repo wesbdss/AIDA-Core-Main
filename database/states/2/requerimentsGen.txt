@@ -1,6 +1,6 @@
-tflearn==0.3.2
-websockets==8.1
+numpy
 nltk==3.4.5
 tensorflow-gpu==1.14.0
 Unidecode==1.1.1
-numpy
+websockets==8.1
+tflearn==0.3.2
