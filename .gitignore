@@ -108,7 +108,11 @@ data/*
 
 *_teste/
 output/*
-src/AIDA-*
-database/*
+src/AIDA-*/
+database/AIDA-preprocessamento-1/
+database/AIDA-processamento-1/
+database/inputs
+database/outputs
+database/states
 
-testeserver.http
+*.http
