@@ -31,6 +31,7 @@
 from src.orquestrador import Orquestrador
 import logging
 import sys
+import flask
 
 
 class Main:
